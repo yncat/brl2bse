@@ -1,0 +1,43 @@
+#packopt name "brl2bse"
+dirlist file,"*.brl"
+fn=stat
+if fn=0:dialog "このフォルダの中には、BRLファイルが見つかりませんでした。このソフトで変換を行うには、変換したいBRLファイルが、この実行ファイルとおなじフォルダに置かれている必要があります。",,"エラー":end
+dialog "このフォルダの中には、"+fn+"個のBRLファイルがあるようです。これらのファイルをBSE形式に変換しますか?",3,"BRL2BSE"
+if stat=7:dialog "操作がキャンセルされました。",,"終了":end
+cbse="ABCDEFGHIJKLMNOPQRSTUVXYZ&=(!)*<%?:$]\\[W1234567890/+#>'-@^_\".;,"
+cbrl="abcdefghijklmnopqrstuvxyz&=(!)*<%?:$}|{w1234567890/+#>'-`~_\".;,"
+notesel file
+repeat notemax
+noteget n,cnt
+fp=n
+exist fp
+s=strsize
+sdim dt,s+1
+sdim dt2,s+517
+bload fp,dt
+index=0
+repeat strlen(dt)
+p=peek(dt,index)
+repeat 63
+p2=peek(cbrl,cnt)
+if p=p2:poke dt,index,peek(cbse,cnt)
+loop
+index++
+loop
+memcpy dt2,dt,s,516,0
+count=0
+index=0
+repeat
+p=instr(dt,index,"\n")
+if p=-1:break
+index=index+p+2
+count++
+loop
+pages=strf("%04d",count/22)
+header=pages+"3222\n\n"
+memcpy dt2,header,12,504
+bsave getpath(fp,9)+".bse",dt2,s+512
+loop
+dialog "変換が完了しました。",,"処理終了"
+end
+
